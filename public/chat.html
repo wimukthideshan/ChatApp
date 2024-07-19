@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="notification.css">
+</head>
+<body>
+    <div class="chat-container">
+        <div class="sidebar">
+            <div id="user-list" class="user-list"></div>
+            <div class="room-list">
+                <h3>Rooms</h3>
+                <div class="room" data-room="Room 1">Room 1</div>
+                <div class="room" data-room="Room 2">Room 2</div>
+            </div>
+        </div>
+        <div class="chat">
+            <div id="chat-header" class="chat-header">
+                <span id="chat-title">Select a user or room to start chatting</span>
+                <button id="mute-button" onclick="toggleMute()">🔔</button>
+            </div>
+            <div id="messages" class="messages"></div>
+            <div class="input">
+                <input type="text" id="message-input" placeholder="Type your message...">
+                <button id="send-button">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="script.js"></script>
+    <script src="notification.js"></script>
+</body>
+</html>
