@@ -28,11 +28,8 @@ socket.on('user list', (receivedUsers) => {
     updateUserList();
 });
 
-socket.on('room list', (roomsWithUnread) => {
-    rooms = roomsWithUnread.map(room => room.name);
-    roomsWithUnread.forEach(room => {
-        unreadCounts[room.name] = room.unreadCount;
-    });
+socket.on('room list', (receivedRooms) => {
+    rooms = receivedRooms;
     updateRoomList();
 });
 
@@ -50,9 +47,9 @@ socket.on('private message', ({ content, from, to }) => {
     }
 });
 
-socket.on('room messages', ({ room, messages, unreadCount }) => {
-    chats[room] = messages;
-    displayChat(room);
+socket.on('room joined', (room) => {
+    currentRoom = room;
+    socket.emit('get chat history', { with: room, isRoom: true });
 });
 
 socket.on('room message', ({ room, message }) => {
@@ -68,9 +65,14 @@ socket.on('room message', ({ room, message }) => {
     }
 });
 
-socket.on('update room unread', ({ room, unreadCount }) => {
-    unreadCounts[room] = unreadCount;
-    updateRoomList();
+socket.on('chat history', (messages) => {
+    const chatId = currentRoom || selectedUser;
+    chats[chatId] = messages.map(msg => ({
+        content: msg.content,
+        senderId: msg.sender === currentUsername ? socket.id : null,
+        username: msg.sender
+    }));
+    displayChat(chatId);
 });
 
 function updateUserList() {
@@ -108,12 +110,11 @@ function selectUser(userId) {
         currentRoom = null;
     }
     selectedUser = userId;
-    currentRoom = null;
     unreadCounts[userId] = 0;
     updateUserList();
     updateRoomList();
-    displayChat(userId);
     document.getElementById('chat-title').textContent = `Chat with ${getUsernameById(userId)}`;
+    socket.emit('get chat history', { with: getUsernameById(userId), isRoom: false });
 }
 
 function joinRoom(room) {
@@ -125,16 +126,10 @@ function joinRoom(room) {
         socket.emit('leave room', currentRoom);
     }
     selectedUser = null;
-    currentRoom = room;
-    
-    // Clear unread count immediately
-    unreadCounts[room] = 0;
-    updateRoomList();
-    
     socket.emit('join room', room);
-    socket.emit('mark room as read', room);
-    
+    unreadCounts[room] = 0;
     updateUserList();
+    updateRoomList();
     document.getElementById('chat-title').textContent = room;
 }
 

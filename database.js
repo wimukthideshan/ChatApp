@@ -1,23 +1,28 @@
-// const mongoose = require('mongoose');
+const sqlite3 = require('sqlite3').verbose();
 
-// // Connect to MongoDB
-// mongoose.connect('mongodb://localhost/chatapp', { useNewUrlParser: true, useUnifiedTopology: true });
+const DBSOURCE = "chat.sqlite";
 
-// // Define schemas
-// const messageSchema = new mongoose.Schema({
-//   content: String,
-//   sender: String,
-//   recipient: String, // can be a user ID or room name
-//   timestamp: { type: Date, default: Date.now }
-// });
+let db = new sqlite3.Database(DBSOURCE, (err) => {
+    if (err) {
+        console.error(err.message);
+        throw err;
+    } else {
+        console.log('Connected to the SQLite database.');
+        db.run(`CREATE TABLE message (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            sender TEXT, 
+            receiver TEXT,
+            content TEXT, 
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+            is_room_message BOOLEAN
+        )`, (err) => {
+            if (err) {
+                // Table already created
+            } else {
+                console.log('Message table created.');
+            }
+        });
+    }
+});
 
-// const userSchema = new mongoose.Schema({
-//   username: String,
-//   socketId: String
-// });
-
-// // Create models
-// const Message = mongoose.model('Message', messageSchema);
-// const User = mongoose.model('User', userSchema);
-
-// module.exports = { Message, User };
+module.exports = db;
