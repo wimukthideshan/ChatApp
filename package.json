@@ -11,10 +11,11 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "express": "^4.17.1",
     "socket.io": "^4.7.5",
     "sqlite3": "^5.1.7"
   },
   "engines": {
-    "node": "14.x"
+    "node": ">=14.0.0"
   }
 }
